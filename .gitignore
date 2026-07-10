@@ -1,0 +1,22 @@
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts (if docs site added later)
+node_modules/
+dist/
+build/
+.next/
+.docusaurus/
+site/
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
