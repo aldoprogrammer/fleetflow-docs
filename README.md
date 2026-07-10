@@ -1,5 +1,7 @@
 # FleetFlow — System Architecture Documentation
 
+> **FleetFlow Production Board** · [View Kanban Board →](https://github.com/users/aldoprogrammer/projects/2)
+
 **Product:** FleetFlow (On-Demand Logistics & Courier Dispatch System)  
 **Classification:** Enterprise Multi-Repo Ecosystem  
 **Audience:** Principal Engineers, Platform Architects, Mobile & Backend Teams  
