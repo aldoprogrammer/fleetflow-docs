@@ -1,0 +1,259 @@
+# FleetFlow — Cursor AI Workspace Rules
+# Place this file at: fleetflow-docs/.cursorrules
+# Symlink or copy to monorepo root as `.cursorrules` for Cursor to load automatically.
+# Last Updated: 2026-07-11
+
+## WORKSPACE CONTEXT
+
+You are assisting development on **FleetFlow**, an enterprise on-demand logistics and courier dispatch platform. The monorepo uses **pnpm workspaces** with strict package boundaries.
+
+### Repository Map
+
+| Package | Path | Runtime | Responsibility |
+|---------|------|---------|----------------|
+| `@fleetflow/shared` | `fleetflow-shared/` | TypeScript library | Zod schemas, RBAC permissions, shared enums |
+| `@fleetflow/api` | `fleetflow-api/` | NestJS on Node 20+ (Docker or native) | REST API, Prisma ORM, BullMQ matching, JWT + API key auth |
+| `@fleetflow/web` | `fleetflow-web/` | Next.js 15 App Router (native host, port 3001) | Enterprise portal: JWT auth, RBAC, dashboard, orders |
+| `@fleetflow/app` | `fleetflow-app/` | Flutter 3.24+ | Driver Partner mobile client |
+| `@fleetflow/infra` | `fleetflow-infra/` | Docker Compose | PostgreSQL 15, Redis 7, optional API container |
+| Documentation | `fleetflow-docs/` | Markdown | PRD, Backlog, Roadmap, QA guides |
+
+### Architecture Constraints
+
+- **Next.js runs natively** on the host OS for fast hot-reload (port `3001`).
+- **NestJS, PostgreSQL, Redis** run dockerized via `fleetflow-infra/docker-compose.yml` (API port `3000`).
+- **Prisma schema** lives ONLY in `fleetflow-api/prisma/schema.prisma`. Never run bare `npx prisma` from monorepo root without `--schema`.
+- **Contracts** are defined in `@fleetflow/shared` and imported by API. Web middleware uses a mirrored copy in `fleetflow-web/src/lib/auth/permissions.ts` (keep in sync when RBAC changes).
+- **Matching logic** executes in `fleetflow-api/src/orders/matching.processor.ts` via BullMQ `dispatch-queue`. Haversine radius is strictly **10 km**.
+- **Ledger mutations** (merchant debit, driver credit at 90%, 10% platform fee) occur ONLY inside Prisma `$transaction` blocks in the matching processor.
+- **RBAC roles:** `SUPERADMIN`, `REGIONAL_MANAGER`, `HEAD_OF_WAREHOUSE`, `FLEET_OPERATOR`, `MERCHANT_ADMIN`, `DRIVER_PARTNER`.
+
+### Domain Vocabulary (always use these terms)
+
+- **Merchant** — B2B shipper with prepaid wallet and `apiKey`
+- **Driver Partner** — courier with `Vehicle` (BIKE | CAR | TRUCK) and live coordinates
+- **Order** — dispatch request with pickup/delivery coordinates and `vehicleTypeRequired`
+- **OrderTimeline** — immutable audit log of status transitions
+- **Transaction** — ledger entry (`DEBIT` | `CREDIT`)
+- **Warehouse hub** — regional capacity boundary (Phase 2; reference in planning docs)
+
+---
+
+## DEV COMMAND SHORTCUTS
+
+Always prefer these established scripts. Do not invent alternative commands unless the user explicitly requests a change.
+
+### Monorepo Root (`/`)
+
+```bash
+# Parallel API + Web dev servers
+pnpm dev                    # API :3000 + Web :3001
+
+# Individual services
+pnpm dev:api                # NestJS watch mode
+pnpm dev:web                # Next.js dev :3001
+
+# Prisma automation (handles Studio/API lock release)
+pnpm prisma:sync            # migrate deploy + generate + seed
+pnpm prisma:sync:dev        # migrate dev + generate + seed
+pnpm prisma:watch           # auto-sync on schema.prisma changes
+pnpm prisma:studio          # GUI at http://localhost:5555
+
+# QA pyramid
+pnpm test:qa                # unit + API integration
+pnpm test:qa:web            # Jest unit + Playwright E2E
+pnpm test:qa:flutter        # Flutter widget + integration
+pnpm test:smoke             # live API + web health (stack must be running)
+pnpm test:qa:live           # smoke + API live e2e
+
+# Build & quality
+pnpm typecheck
+pnpm lint
+pnpm build
+```
+
+### Infrastructure
+
+```bash
+cd fleetflow-infra
+docker compose up -d        # postgres + redis (+ optional API)
+docker compose down         # preserves named volumes
+docker compose down -v      # DESTROYS data — fresh start only
+```
+
+### API (`fleetflow-api/`)
+
+```bash
+pnpm start:dev              # NestJS watch
+pnpm test:unit              # geo-matching, pricing specs
+pnpm test:integration       # health, RBAC supertest
+node test/run-live-e2e.mjs  # live stack e2e (requires running API)
+```
+
+### Web (`fleetflow-web/`)
+
+```bash
+pnpm dev                    # :3001
+pnpm test                   # Jest unit
+pnpm test:e2e               # Playwright headless
+pnpm test:e2e:ui            # Playwright interactive
+npx playwright install chromium   # first-time browser install
+```
+
+**Reusable UI:** `AppLink`, `ActionLoadingOverlay`, `Skeleton`, `PageSection` — see `fleetflow-web/docs/COMPONENTS.md`.
+
+**Portal RBAC:** update `lib/auth/access.ts` + `middleware.ts` when adding routes — skill: `.cursor/skills/fleetflow-rbac-portal/SKILL.md`.
+
+### Flutter (`fleetflow-app/`)
+
+```bash
+flutter pub get
+flutter test test/widget
+flutter test integration_test/app_test.dart
+flutter run
+```
+
+### Seed Credentials (local development only)
+
+| Resource | Value |
+|----------|-------|
+| Merchant API key (sufficient balance) | `ff_live_merchant_acme_7f3c9a2e` |
+| Merchant API key (low balance) | `ff_live_merchant_startup_1b4d8e6f` |
+| RBAC user password (all seed users) | `FleetFlow!2026` |
+| Merchant Admin email | `merchant.admin@acme-commerce.id` |
+| Driver Partner email | `driver.partner@fleetflow.dev` |
+
+---
+
+## CODE GENERATION CONSTRAINTS
+
+### Absolute Prohibitions
+
+1. **NO pseudo-code** — never write `// TODO: implement later`, `// implement here`, empty function bodies, or partial loops.
+2. **NO empty test stubs** — every test file must contain real assertions against real behavior. Do not generate `expect(true).toBe(true)` placeholders.
+3. **NO placeholder markdown** — documentation must be complete sentences with FleetFlow-specific domain content, not lorem ipsum or "TBD" sections.
+4. **NO duplicate Prisma schemas** — schema changes go only in `fleetflow-api/prisma/schema.prisma` with a migration file.
+5. **NO bypassing GlobalExceptionFilter** — API errors must return `{ success: false, statusCode, message, timestamp }`.
+6. **NO cross-tenant data leaks** — always scope order queries by `merchantId`, `assignedDriverId`, or RBAC permission level.
+7. **NO debit at order create** — merchant balance deduction happens only at `ASSIGNED` in the matching processor.
+
+### TypeScript Requirements (API + Web + Shared)
+
+- Enable and respect `strict` mode. No `any` unless interfacing with untyped third-party and immediately narrowed.
+- Use explicit return types on all service methods and exported functions.
+- DTOs use `class-validator` decorators in API; Zod schemas in `@fleetflow/shared`.
+- Import `UserRole`, `PERMISSIONS` from `@fleetflow/shared` — do not redefine role strings locally.
+- NestJS guards order: `HybridAuthGuard` → `PermissionsGuard` on protected controllers.
+- Express `Request` extensions: `request.merchant`, `request.user`, `request.authMode`.
+
+### Flutter Requirements
+
+- Use `Key()` widgets on all interactive elements targeted by widget/integration tests.
+- Follow clean architecture: `domain/` → `data/` → `presentation/`.
+- Use `dio` via `DioClient` — do not instantiate raw HTTP clients in widgets.
+
+### Prisma & Database
+
+- Every schema change requires: edit `schema.prisma` → `pnpm prisma:sync:dev` (or `prisma:sync`) → verify seed.
+- Use `$transaction` for any operation touching `Order.status`, `Merchant.balance`, and `Transaction` in the same flow.
+- Enums must match exactly: `VehicleType`, `OrderStatus`, `DriverStatus`, `TxType`, `UserRole`.
+
+### Error Handling Pattern (API)
+
+```typescript
+// All thrown exceptions are caught by GlobalExceptionFilter.
+// Use NestJS built-in exceptions:
+throw new BadRequestException('Insufficient merchant balance. Required X, available Y.');
+throw new UnauthorizedException('Invalid or missing API key.');
+throw new ForbiddenException('Insufficient permissions for this action.');
+throw new NotFoundException(`Order ${orderId} not found.`);
+```
+
+Never return raw `Error` objects or inconsistent JSON shapes from controllers.
+
+### Testing Requirements
+
+When adding a feature, add tests at the appropriate layer:
+
+| Change type | Required test |
+|-------------|---------------|
+| Haversine / pricing logic | `*.spec.ts` unit test in `fleetflow-api/src/` |
+| New REST endpoint | `test/integration/*.integration.spec.ts` with Supertest |
+| RBAC rule change | Update `rbac.integration.spec.ts` |
+| Web form or flow | Playwright spec in `fleetflow-web/e2e/` |
+| Flutter screen | Widget test in `fleetflow-app/test/widget/` |
+| Shared permission matrix | Verify via API integration test importing `@fleetflow/shared` |
+
+Run `pnpm test:qa` before marking any API/Web task complete.
+
+### File Naming Conventions
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| NestJS service | `*.service.ts` | `orders.service.ts` |
+| NestJS spec | `*.spec.ts` (co-located) | `pricing.service.spec.ts` |
+| Integration test | `*.integration.spec.ts` | `health.integration.spec.ts` |
+| Playwright spec | `e2e/*.spec.ts` | `e2e/orders.spec.ts` |
+| Flutter widget test | `test/widget/*_test.dart` | `login_page_test.dart` |
+| Prisma migration | `YYYYMMDDHHMMSS_description/` | `20260711190000_add_rbac_users/` |
+
+### Documentation Requirements
+
+When modifying domain logic, update the corresponding doc:
+
+| Change | Update |
+|--------|--------|
+| New feature | `fleetflow-docs/docs/planning/BACKLOG.md` checklist |
+| Phase shift | `fleetflow-docs/docs/planning/ROADMAP.md` |
+| API contract | `fleetflow-api/API_SPEC.md` |
+| Test procedure | `fleetflow-docs/QA_TESTING.md` |
+| Product behavior | `fleetflow-docs/PRD.md` |
+| Web UI component | `fleetflow-web/docs/COMPONENTS.md` |
+| Web auth/RBAC/loading | `fleetflow-web/docs/WEB_PATTERNS.md` |
+
+### Cursor Project Skills (`.cursor/skills/`)
+
+| Repetitive task | Skill |
+|-----------------|-------|
+| Prisma migrate/seed/EPERM | `fleetflow-prisma` |
+| Web pages, skeletons, loading | `fleetflow-web-ui` |
+| Portal menu + RBAC route | `fleetflow-rbac-portal` |
+| NestJS endpoint + guards | `fleetflow-api-endpoint` |
+
+Read the matching `SKILL.md` before improvising workflows.
+
+---
+
+## RESPONSE STYLE FOR CURSOR
+
+1. Deliver **complete, production-ready code** immediately — no meta-commentary or filler introductions.
+2. Match existing code style, import patterns, and naming in the target package.
+3. Minimize diff scope — only modify files required for the task.
+4. Use code citations format: ```startLine:endLine:filepath when referencing existing code.
+5. All user-facing documentation and replies must be in **English**.
+6. When unsure about port or script names, consult this file and `package.json` scripts — do not guess.
+
+---
+
+## SECURITY REMINDERS
+
+- Never commit `.env` files, API keys, or `FleetFlow!2026` seed password to production configs.
+- `x-api-key` header is required for B2B merchant integrations; JWT Bearer for dashboard users.
+- CORS is restricted to `http://localhost:3001` in development — update `main.ts` for staging domains.
+- Prisma `Transaction` rows are append-only — never generate UPDATE/DELETE on ledger records.
+
+---
+
+## QUICK REFERENCE: ORDER STATE MACHINE
+
+```
+DRAFT → PENDING → MATCHING → ASSIGNED → PICKED_UP → DELIVERED
+                              ↘ CANCELLED
+```
+
+Queue: `dispatch-queue` | Job: `dispatch-order` | Processor: `MatchingProcessor`
+Radius: 10 km Haversine | Platform fee: 10% | Driver payout: 90%
+
+---
+
+# END OF FLEETFLOW CURSOR RULES

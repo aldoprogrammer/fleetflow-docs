@@ -1,457 +1,274 @@
-# FleetFlow — System Architecture Documentation
+# FleetFlow Documentation Hub
 
 > **FleetFlow Production Board** · [View Kanban Board →](https://github.com/users/aldoprogrammer/projects/2)
 
-**Product:** FleetFlow (On-Demand Logistics & Courier Dispatch System)  
+**Product:** FleetFlow — On-Demand Logistics & Courier Dispatch System  
 **Classification:** Enterprise Multi-Repo Ecosystem  
-**Audience:** Principal Engineers, Platform Architects, Mobile & Backend Teams  
-**Last Updated:** 2026-07-10
+**Audience:** Principal Engineers, Product Architects, QA Engineers, Mobile & Backend Guilds  
+**Last Updated:** 2026-07-11
 
 ---
 
-## 1. Executive Overview
+## Purpose of This Hub
 
-FleetFlow is a highly scalable, on-demand logistics and courier dispatch platform. The ecosystem is organized as a **pnpm multi-package workspace** with clear ownership boundaries:
+`fleetflow-docs/` is the **single source of truth** for FleetFlow product intent, engineering planning, AI-assisted development rules, and quality verification. Every specification in this folder maps directly to code in sibling packages (`fleetflow-api`, `fleetflow-web`, `fleetflow-app`, `fleetflow-infra`, `fleetflow-shared`) and to automated test scripts executable from the monorepo root.
+
+Read this index first, then drill into the document that matches your role.
+
+---
+
+## Folder Structure
+
+```
+fleetflow-docs/
+├── README.md                      ← You are here (documentation index)
+├── PRD.md                         ← Product requirements & acceptance criteria
+├── QA_TESTING.md                  ← Full QA pyramid & test commands
+├── ARCHITECTURE.md                ← System diagram + portfolio video script
+├── .cursorrules                   ← Cursor AI workspace rules (copy to monorepo root)
+│
+└── docs/
+    ├── planning/
+    │   ├── BACKLOG.md             ← Epics, sprint tasks, checklists
+    │   └── ROADMAP.md             ← Phase 1–3 timeline & milestones
+    │
+    └── reference/
+        ├── merchant-admin-manual.md    ← MERCHANT_ADMIN operations guide
+        ├── driver-partner-manual.md    ← DRIVER_PARTNER mobile & matching guide
+        ├── regional-manager-manual.md  ← REGIONAL_MANAGER analytics & SLA guide
+        ├── head-of-warehouse-manual.md ← HEAD_OF_WAREHOUSE hub operations guide
+        ├── fleet-operator-manual.md    ← FLEET_OPERATOR dispatch & telemetry guide
+        └── superadmin-manual.md        ← SUPERADMIN platform administration guide
+```
+
+### Sibling Package Documentation
+
+| Package | Local Docs | Scope |
+|---------|------------|-------|
+| `fleetflow-api/` | `README.md`, `API_SPEC.md` | REST endpoints, Prisma, auth, matching |
+| `fleetflow-web/` | `README.md` | Next.js portal, Playwright |
+| `fleetflow-app/` | `README.md` | Flutter driver client |
+| `fleetflow-infra/` | `README.md` | Docker Compose, smoke QA |
+| `fleetflow-shared/` | `README.md` | Zod contracts, RBAC permissions |
+
+---
+
+## How to Read the Specifications
+
+### For Product & Architecture
+
+1. Start with **[PRD.md](./PRD.md)** — business scale (Bengkulu → national), persona journeys, Haversine matching specs, ledger rules, performance/security metrics.
+2. Read **[docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)** — what shipped in Phase 1, what is planned for multi-warehouse scale and analytics.
+3. Groom tasks from **[docs/planning/BACKLOG.md](./docs/planning/BACKLOG.md)** — epics with checkbox status (`[x]` shipped, `[ ]` remaining).
+
+### For Backend Engineers
+
+1. **PRD §3** — matching state machine, BullMQ worker flow, Prisma transaction block for ledger.
+2. **`fleetflow-api/API_SPEC.md`** — request/response contracts, validation limits, error envelope.
+3. **BACKLOG Epic 2 & 3** — dispatch loop hardening and wallet bookkeeping tasks.
+4. Run `pnpm test:qa` after every change.
+
+### For Web Engineers
+
+1. **PRD §2.1** — Merchant Admin journey (create order → tracker poll).
+2. **`fleetflow-web/docs/COMPONENTS.md`** — reusable UI catalog (`AppLink`, skeletons, overlays).
+3. **`fleetflow-web/docs/WEB_PATTERNS.md`** — auth, RBAC middleware, loading strategy.
+4. **`fleetflow-web/e2e/`** — Playwright specs as executable acceptance criteria.
+5. **BACKLOG Epic 4.2** — Playwright and Jest tasks.
+
+### For Mobile Engineers
+
+1. **PRD §2.2** — Driver Partner journey (assignment, job acceptance).
+2. **`fleetflow-app/test/widget/`** and **`integration_test/`** — widget and E2E tests.
+3. **BACKLOG Epic 4.3** — Flutter reactive connection tasks.
+
+### For QA Engineers
+
+1. **[QA_TESTING.md](./QA_TESTING.md)** — complete test pyramid, commands, CI order, troubleshooting.
+2. **Verification Matrix** (below) — PRD requirement → test file mapping.
+3. Run `pnpm test:qa:live` before release candidates (requires live stack).
+
+### For Cursor AI Sessions
+
+1. Copy or symlink **[.cursorrules](./.cursorrules)** to the monorepo root as `.cursorrules`.
+2. Use project skills in **[`.cursor/skills/`](../.cursor/skills/README.md)** for repetitive workflows (Prisma, web UI, RBAC portal, API endpoints).
+3. Cursor will enforce: no pseudo-code, strict TypeScript, `GlobalExceptionFilter` errors, Prisma transaction ledger rules, and dev command shortcuts.
+
+---
+
+## Document Reference
+
+| Document | ID | Description |
+|----------|-----|-------------|
+| [PRD.md](./PRD.md) | FF-PRD-001 | Product Requirements Document |
+| [BACKLOG.md](./docs/planning/BACKLOG.md) | FF-BACKLOG-001 | Product backlog with epic checklists |
+| [ROADMAP.md](./docs/planning/ROADMAP.md) | FF-ROADMAP-001 | Phase 1–3 timeline blueprint |
+| [QA_TESTING.md](./QA_TESTING.md) | FF-QA-001 | QA automation guide |
+| [.cursorrules](./.cursorrules) | FF-CURSOR-001 | Cursor AI code assistance rules |
+| [API_SPEC.md](../fleetflow-api/API_SPEC.md) | FF-API-001 | REST API technical specification |
+| [COMPONENTS.md](../fleetflow-web/docs/COMPONENTS.md) | FF-WEB-UI-001 | Web reusable component catalog |
+| [WEB_PATTERNS.md](../fleetflow-web/docs/WEB_PATTERNS.md) | FF-WEB-ARCH-001 | Portal auth, RBAC, loading patterns |
+| [Cursor Skills](../.cursor/skills/README.md) | FF-SKILLS-001 | Agent skills for repetitive tasks |
+
+### User Operations Manuals
+
+| Role | Manual | Seed Email (dev) |
+|------|--------|------------------|
+| `MERCHANT_ADMIN` | [merchant-admin-manual.md](./docs/reference/merchant-admin-manual.md) | `merchant.admin@acme-commerce.id` |
+| `DRIVER_PARTNER` | [driver-partner-manual.md](./docs/reference/driver-partner-manual.md) | `driver.partner@fleetflow.dev` |
+| `REGIONAL_MANAGER` | [regional-manager-manual.md](./docs/reference/regional-manager-manual.md) | `regional.manager@fleetflow.dev` |
+| `HEAD_OF_WAREHOUSE` | [head-of-warehouse-manual.md](./docs/reference/head-of-warehouse-manual.md) | `warehouse.head@fleetflow.dev` |
+| `FLEET_OPERATOR` | [fleet-operator-manual.md](./docs/reference/fleet-operator-manual.md) | `fleet.operator@fleetflow.dev` |
+| `SUPERADMIN` | [superadmin-manual.md](./docs/reference/superadmin-manual.md) | `superadmin@fleetflow.dev` |
+
+All seed accounts use password `FleetFlow!2026` in local development.
+
+---
+
+## Verification Matrix
+
+This matrix connects **PRD acceptance criteria** to **automated test artifacts**. A requirement is considered verified when its mapped test passes in CI or local `pnpm test:qa*`.
+
+### Matching & Dispatch
+
+| PRD Requirement | Implementation | Test |
+|-----------------|----------------|------|
+| Haversine 10 km radius filter | `geo-matching.service.ts` | `fleetflow-api/src/orders/matching/geo-matching.service.spec.ts` |
+| Closest driver selection | `findClosestDriverWithinRadius` | `geo-matching.service.spec.ts` |
+| No driver → CANCELLED | `matching.processor.ts` | Manual + Phase 2 processor integration test |
+| Vehicle type hard filter | `MatchingProcessor` Prisma query | `geo-matching.service.spec.ts` |
+| Order pricing by vehicle tier | `pricing.service.ts` | `fleetflow-api/src/orders/pricing/pricing.service.spec.ts` |
+| DRAFT → PENDING → MATCHING → ASSIGNED | `orders.service.ts` + processor | `fleetflow-web/e2e/orders.spec.ts` (mocked flow) |
+
+### Security & RBAC
+
+| PRD Requirement | Implementation | Test |
+|-----------------|----------------|------|
+| API key merchant isolation | `HybridAuthGuard` | `fleetflow-api/test/integration/rbac.integration.spec.ts` |
+| MERCHANT_ADMIN read own orders | `userCanReadOrder` | `rbac.integration.spec.ts` |
+| DRIVER_PARTNER read assigned orders | `userCanReadOrder` | `rbac.integration.spec.ts` |
+| FLEET_OPERATOR read all orders | `userCanReadOrder` | `rbac.integration.spec.ts` |
+| Permission matrix correctness | `@fleetflow/shared` RBAC | `rbac.integration.spec.ts` |
+| Consistent error envelope | `GlobalExceptionFilter` | `fleetflow-web/src/lib/api/orders.test.ts` |
+
+### Financial Ledger
+
+| PRD Requirement | Implementation | Test |
+|-----------------|----------------|------|
+| Pre-create balance check | `OrdersService.createOrder` | API manual + insufficient balance seed key |
+| Debit only at ASSIGNED | `matching.processor.ts` `$transaction` | Phase 2 integration test (backlog) |
+| Driver credit at 90% | `matching.processor.ts` | Phase 2 integration test (backlog) |
+| Low-balance merchant rejection | Seed `ff_live_merchant_startup_1b4d8e6f` | Playwright + live API manual |
+
+### Web Portal
+
+| PRD Requirement | Implementation | Test |
+|-----------------|----------------|------|
+| Create order form validation | `CreateOrderForm.tsx` | `fleetflow-web/e2e/portal.spec.ts` |
+| Create → tracker redirect | `CreateOrderForm.tsx` | `fleetflow-web/e2e/orders.spec.ts` |
+| 3-second order polling | `OrderTracker.tsx` | `e2e/orders.spec.ts` (ASSIGNED visible) |
+| API error message display | `extractApiErrorMessage` | `fleetflow-web/src/lib/api/orders.test.ts` |
+
+### Mobile (Flutter)
+
+| PRD Requirement | Implementation | Test |
+|-----------------|----------------|------|
+| Login validation | `LoginPage` | `fleetflow-app/test/widget/login_page_test.dart` |
+| Login → jobs navigation | `LoginPage` | `login_page_test.dart` |
+| Job acceptance UI | `JobOfferPage` | `test/widget/job_offer_page_test.dart` |
+| Full driver flow | `FleetFlowApp` routes | `integration_test/app_test.dart` |
+
+### Infrastructure & Health
+
+| PRD Requirement | Implementation | Test |
+|-----------------|----------------|------|
+| API liveness | `GET /v1/health/live` | `fleetflow-api/test/integration/health.integration.spec.ts` |
+| API readiness | `GET /v1/health/ready` | `health.integration.spec.ts` |
+| Live stack smoke | Docker Compose + dev servers | `fleetflow-infra/qa/smoke-stack.mjs` |
+| Live API + Web e2e | Running stack | `fleetflow-api/test/e2e/stack-smoke.e2e.spec.ts` |
+
+---
+
+## QA Quick Commands
+
+Run from **monorepo root**:
+
+```bash
+# CI-friendly (no live stack required)
+pnpm test:qa              # API unit + integration
+pnpm test:qa:web          # Web Jest + Playwright E2E
+pnpm test:qa:flutter      # Flutter widget + integration
+
+# Requires API (:3000) + Web (:3001) running
+pnpm test:smoke           # infra smoke script
+pnpm test:qa:live         # smoke + API live e2e
+```
+
+**Prerequisites for live tests:**
+
+```bash
+cd fleetflow-infra && docker compose up -d
+cd ../fleetflow-api && pnpm prisma:sync
+pnpm dev                  # API + Web in parallel
+```
+
+Full details: **[QA_TESTING.md](./QA_TESTING.md)**
+
+---
+
+## Ecosystem Package Map
 
 | Package | Role | Runtime |
 |---------|------|---------|
-| `fleetflow-shared` | Shared contracts, Zod schemas, DTOs, domain enums | TypeScript library |
-| `fleetflow-api` | Core NestJS API gateway & domain services | Node.js 20+ |
-| `fleetflow-web` | Operations / customer portal (Next.js) | React / Next.js |
-| `fleetflow-app` | Driver & courier mobile client | Flutter / Dart |
-| `fleetflow-infra` | Local HA replication & service topology | Docker Compose |
-| `fleetflow-docs` | Architecture, contracts, topology (this package) | Markdown |
-
-Cross-cutting principle: **contracts live in `fleetflow-shared`**. TypeScript consumers import Zod schemas and inferred types directly. Flutter consumes the same JSON wire format via generated Dart models and explicit mapping tables documented below.
+| `fleetflow-shared` | Zod contracts, RBAC `PERMISSIONS`, `USER_ROLES` | TypeScript library |
+| `fleetflow-api` | NestJS REST, Prisma, BullMQ matching, JWT + API key | Node.js 20+ (:3000) |
+| `fleetflow-web` | Next.js merchant portal, order create, live tracker | Native host (:3001) |
+| `fleetflow-app` | Flutter Driver Partner client | iOS / Android / Desktop |
+| `fleetflow-infra` | PostgreSQL 15, Redis 7, smoke QA | Docker Compose |
+| `fleetflow-docs` | This documentation hub | Markdown |
 
 ---
 
-## 2. Architectural Style
+## Reading Order by Role
 
-FleetFlow follows **Clean Architecture** with hexagonal ports/adapters:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Presentation Layer                       │
-│   Next.js (Web)  │  Flutter (App)  │  NestJS Controllers    │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ HTTP / WebSocket / JSON
-┌───────────────────────────▼─────────────────────────────────┐
-│                   Application / Use Cases                    │
-│         Commands · Queries · Orchestration · Policies        │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ Domain Ports
-┌───────────────────────────▼─────────────────────────────────┐
-│                      Domain Layer                            │
-│     Entities · Value Objects · Domain Events · Invariants    │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ Adapters
-┌───────────────────────────▼─────────────────────────────────┐
-│                   Infrastructure Layer                       │
-│  Prisma/PostgreSQL · Redis · Bull Queues · Stripe · Maps     │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**DRY rules:**
-
-- Validation schemas are defined once in `@fleetflow/shared` (Zod).
-- NestJS pipes validate request bodies against those schemas.
-- Flutter `dio` clients deserialize the same JSON keys; field names never diverge without a versioned contract change.
-- Enums and status machines are single-sourced in shared contracts and mirrored in Dart.
+| Role | Read in order |
+|------|---------------|
+| **Product Manager** | README → PRD → ROADMAP → BACKLOG |
+| **Backend Engineer** | README → PRD §3 → API_SPEC → BACKLOG Epic 2–3 → QA_TESTING |
+| **Frontend Engineer** | README → PRD §2.1 → QA_TESTING §Web → BACKLOG Epic 4.2 |
+| **Mobile Engineer** | README → PRD §2.2 → fleetflow-app README → BACKLOG Epic 4.3 |
+| **QA Engineer** | README → QA_TESTING → Verification Matrix above → BACKLOG Epic 4 |
+| **DevOps / SRE** | README → fleetflow-infra README → ROADMAP Phase 2 → QA smoke |
+| **Cursor AI** | `.cursorrules` → PRD → API_SPEC |
+| **Merchant Admin** | [merchant-admin-manual.md](./docs/reference/merchant-admin-manual.md) |
+| **Driver Partner** | [driver-partner-manual.md](./docs/reference/driver-partner-manual.md) |
+| **Regional Manager** | [regional-manager-manual.md](./docs/reference/regional-manager-manual.md) |
+| **Head of Warehouse** | [head-of-warehouse-manual.md](./docs/reference/head-of-warehouse-manual.md) |
+| **Fleet Operator** | [fleet-operator-manual.md](./docs/reference/fleet-operator-manual.md) |
+| **Super Admin** | [superadmin-manual.md](./docs/reference/superadmin-manual.md) |
 
 ---
 
-## 3. Microservices Topology
+## Governance
 
-### 3.1 Logical Services
+| Activity | Owner | Artifact |
+|----------|-------|----------|
+| Product scope change | Product Architecture | `PRD.md` version bump |
+| Sprint grooming | Engineering Leads | `BACKLOG.md` checkbox updates |
+| Phase gate review | Architecture Board | `ROADMAP.md` exit criteria |
+| Test coverage gap | QA Guild | `QA_TESTING.md` + Verification Matrix |
+| AI coding standards | Platform Guild | `.cursorrules` |
 
-| Service | Responsibility | Tech | Scaling Unit |
-|---------|----------------|------|--------------|
-| **API Gateway / Core API** (`fleetflow-api`) | Auth, orders, tracking, payments orchestration, OpenAPI | NestJS | Horizontal (stateless) |
-| **Matching Engine** (`python-matching-service`) | Driver allocation, geo-scoring, capacity constraints | Python | Horizontal + sticky geo shards |
-| **PostgreSQL** | System of record (orders, users, drivers, payments) | PostgreSQL 16 | Primary + replicas |
-| **Redis** | Cache, sessions, Bull job queues, pub/sub for live tracking | Redis 7 | Cluster / sentinel in prod |
-| **Web Portal** (`fleetflow-web`) | Ops dashboards, customer booking UI | Next.js | Edge + SSR nodes |
-| **Mobile App** (`fleetflow-app`) | Driver login, job accept/reject, navigation | Flutter | Client |
-
-### 3.2 Local High-Availability Topology (`fleetflow-infra`)
-
-```
-                    ┌──────────────────┐
-                    │   fleetflow-web  │
-                    │   (Next.js)      │
-                    └────────┬─────────┘
-                             │ HTTPS / JSON
-         ┌───────────────────▼───────────────────┐
-         │           fleetflow-api               │
-         │     NestJS · Swagger · Bull           │
-         └─────┬───────────┬───────────┬─────────┘
-               │           │           │
-               ▼           ▼           ▼
-        ┌──────────┐ ┌─────────┐ ┌─────────────────────┐
-        │ postgres │ │  redis  │ │ python-matching-     │
-        │ (primary)│ │ cache + │ │ service              │
-        │          │ │ queues  │ │ (allocation engine)  │
-        └──────────┘ └─────────┘ └─────────────────────┘
-```
-
-**Data flow for a delivery job:**
-
-1. Customer creates order via Web → `POST /v1/orders`.
-2. API persists order (PostgreSQL), enqueues `MATCH_DRIVER` on Redis/Bull.
-3. Matching service consumes job, scores nearby available drivers, returns assignment candidate.
-4. API updates order status, notifies driver via WebSocket / push.
-5. Driver accepts in Flutter app → `POST /v1/jobs/{id}/accept`.
-6. Tracking events stream through Redis pub/sub; Web and App subscribe for live ETA.
+**Breaking contract changes** require `@fleetflow/shared` update, `API_SPEC.md` revision, and BACKLOG item in Epic 1 or 2.
 
 ---
 
-## 4. API Contracts
-
-### 4.1 Conventions
-
-| Concern | Standard |
-|---------|----------|
-| Base path | `/v1` |
-| Content type | `application/json; charset=utf-8` |
-| Auth | Bearer JWT (`Authorization: Bearer <token>`) |
-| Idempotency | `Idempotency-Key` header on mutating payment/order creates |
-| Errors | RFC 7807-inspired problem+json envelope |
-| Pagination | Cursor-based: `?cursor=<opaque>&limit=20` |
-| Timestamps | ISO-8601 UTC (`2026-07-10T03:00:00.000Z`) |
-| IDs | UUID v4 strings |
-| Money | Integer **minor units** (cents) + ISO 4217 `currency` |
-
-### 4.2 Error Envelope
-
-```json
-{
-  "type": "https://fleetflow.dev/errors/validation",
-  "title": "Validation Failed",
-  "status": 400,
-  "detail": "pickup.latitude must be between -90 and 90",
-  "instance": "/v1/orders",
-  "traceId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "errors": [
-    {
-      "path": "pickup.latitude",
-      "code": "out_of_range",
-      "message": "must be between -90 and 90"
-    }
-  ]
-}
-```
-
-### 4.3 Core Resources
-
-#### Auth
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/v1/auth/login` | Email/password or phone OTP exchange → JWT pair |
-| `POST` | `/v1/auth/refresh` | Rotate refresh token |
-| `POST` | `/v1/auth/logout` | Revoke refresh token |
-
-**Login request**
-
-```json
-{
-  "email": "driver@fleetflow.dev",
-  "password": "Str0ng!Pass",
-  "role": "DRIVER"
-}
-```
-
-**Login response**
-
-```json
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "dGhpc2lzYXJlZnJlc2h0b2tlbg...",
-  "expiresIn": 900,
-  "tokenType": "Bearer",
-  "user": {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "email": "driver@fleetflow.dev",
-    "role": "DRIVER",
-    "displayName": "Alex Rivera"
-  }
-}
-```
-
-#### Orders
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/v1/orders` | Create delivery order |
-| `GET` | `/v1/orders/{orderId}` | Fetch order by id |
-| `GET` | `/v1/orders` | List orders (role-scoped) |
-| `PATCH` | `/v1/orders/{orderId}/cancel` | Cancel if pre-pickup |
-
-**Create order request**
-
-```json
-{
-  "customerId": "550e8400-e29b-41d4-a716-446655440001",
-  "pickup": {
-    "latitude": -6.200000,
-    "longitude": 106.816666,
-    "addressLine": "Jl. Thamrin No. 1, Jakarta",
-    "contactName": "Sender Co",
-    "contactPhone": "+6281234567890"
-  },
-  "dropoff": {
-    "latitude": -6.175110,
-    "longitude": 106.865036,
-    "addressLine": "Jl. Sudirman No. 52, Jakarta",
-    "contactName": "Receiver Ltd",
-    "contactPhone": "+6281298765432"
-  },
-  "parcel": {
-    "weightKg": 2.5,
-    "lengthCm": 30,
-    "widthCm": 20,
-    "heightCm": 15,
-    "description": "Documents and samples"
-  },
-  "serviceLevel": "EXPRESS",
-  "currency": "IDR",
-  "quotedPriceMinor": 4500000
-}
-```
-
-**Order status machine**
-
-```
-DRAFT → PENDING_MATCH → ASSIGNED → ACCEPTED → PICKED_UP → IN_TRANSIT → DELIVERED
-                              ↘ REJECTED → PENDING_MATCH
-         ANY (pre-pickup) → CANCELLED
-         ANY → FAILED
-```
-
-#### Jobs (Driver)
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/v1/drivers/me/jobs/available` | Nearby offerable jobs |
-| `POST` | `/v1/jobs/{jobId}/accept` | Driver accepts assignment |
-| `POST` | `/v1/jobs/{jobId}/reject` | Driver rejects assignment |
-| `POST` | `/v1/jobs/{jobId}/status` | Advance job lifecycle |
-
-**Accept job request**
-
-```json
-{
-  "driverId": "550e8400-e29b-41d4-a716-446655440010",
-  "acceptedAt": "2026-07-10T03:15:00.000Z",
-  "currentLocation": {
-    "latitude": -6.201000,
-    "longitude": 106.817000
-  }
-}
-```
-
-**Accept job response**
-
-```json
-{
-  "jobId": "550e8400-e29b-41d4-a716-446655440020",
-  "orderId": "550e8400-e29b-41d4-a716-446655440030",
-  "status": "ACCEPTED",
-  "pickup": {
-    "latitude": -6.200000,
-    "longitude": 106.816666,
-    "addressLine": "Jl. Thamrin No. 1, Jakarta"
-  },
-  "dropoff": {
-    "latitude": -6.175110,
-    "longitude": 106.865036,
-    "addressLine": "Jl. Sudirman No. 52, Jakarta"
-  },
-  "etaMinutes": 18
-}
-```
-
-#### Payments (Stripe)
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/v1/payments/intents` | Create Stripe PaymentIntent |
-| `POST` | `/v1/webhooks/stripe` | Stripe webhook ingress |
-
-### 4.4 OpenAPI
-
-`fleetflow-api` exposes Swagger UI at `/docs` and OpenAPI JSON at `/docs-json`. Contract changes must:
-
-1. Update Zod schemas in `@fleetflow/shared`.
-2. Regenerate NestJS DTO decorators / Swagger metadata.
-3. Update Flutter Dart models and mapping tables in this document.
-4. Bump API minor version for additive changes; major for breaking changes.
-
----
-
-## 5. Cross-Language JSON → Dart Translation
-
-TypeScript (Zod) is the **source of truth**. Flutter mirrors the wire JSON with `freezed` / hand-written immutable models. Rules:
-
-1. **camelCase** JSON keys on the wire for both platforms.
-2. Dart types map as follows:
-
-| JSON / Zod | TypeScript | Dart |
-|------------|------------|------|
-| `string` (uuid) | `string` | `String` |
-| `string` (datetime) | `string` (ISO) | `DateTime` (parsed UTC) |
-| `number` (int money) | `number` | `int` |
-| `number` (float geo) | `number` | `double` |
-| `boolean` | `boolean` | `bool` |
-| `enum` | string union | `enum` with same names |
-| `object` | interface | class / Freezed |
-| `array` | `T[]` | `List<T>` |
-| `null` optional | `T \| null` | `T?` |
-
-3. **Enums** must use identical uppercase identifiers:
-
-```text
-OrderStatus: DRAFT | PENDING_MATCH | ASSIGNED | ACCEPTED | PICKED_UP | IN_TRANSIT | DELIVERED | CANCELLED | FAILED | REJECTED
-UserRole: CUSTOMER | DRIVER | DISPATCHER | ADMIN
-ServiceLevel: STANDARD | EXPRESS | SAME_DAY
-```
-
-4. **Example Dart mapping** for login response:
-
-```dart
-class AuthTokens {
-  const AuthTokens({
-    required this.accessToken,
-    required this.refreshToken,
-    required this.expiresIn,
-    required this.tokenType,
-    required this.user,
-  });
-
-  final String accessToken;
-  final String refreshToken;
-  final int expiresIn;
-  final String tokenType;
-  final UserSummary user;
-
-  factory AuthTokens.fromJson(Map<String, dynamic> json) {
-    return AuthTokens(
-      accessToken: json['accessToken'] as String,
-      refreshToken: json['refreshToken'] as String,
-      expiresIn: json['expiresIn'] as int,
-      tokenType: json['tokenType'] as String,
-      user: UserSummary.fromJson(json['user'] as Map<String, dynamic>),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'accessToken': accessToken,
-        'refreshToken': refreshToken,
-        'expiresIn': expiresIn,
-        'tokenType': tokenType,
-        'user': user.toJson(),
-      };
-}
-```
-
-5. **Geo points** always serialize as:
-
-```json
-{ "latitude": -6.2, "longitude": 106.816666 }
-```
-
-Never use nested `lat`/`lng` aliases in production payloads.
-
-6. **Failure translation:** Flutter `Either<Failure, T>` (dartz) maps HTTP problem+json `status` + `detail` into domain `Failure` subtypes (`ValidationFailure`, `UnauthorizedFailure`, `NetworkFailure`, `ServerFailure`).
-
----
-
-## 6. Shared Package Contract Surface (`@fleetflow/shared`)
-
-Consumers:
-
-- NestJS: import schemas for `ZodValidationPipe`, domain enums, event payload types.
-- Next.js: import types for React Query hooks and Formik initial values.
-- Flutter: treat OpenAPI + this README as the Dart generation input; do not invent parallel field names.
-
-Recommended module layout inside `fleetflow-shared`:
-
-```
-src/
-  index.ts
-  auth/
-  orders/
-  jobs/
-  payments/
-  geo/
-  common/   # pagination, problem+json, money
-```
-
----
-
-## 7. Security & Compliance Baseline
-
-- TLS everywhere outside the Docker internal network.
-- JWT access tokens short-lived (≤ 15 minutes); refresh tokens rotated and stored hashed.
-- Stripe secrets and DB credentials only via environment / secret manager — never committed.
-- PII fields (phone, address) encrypted at rest where required by jurisdiction.
-- Audit log for order status transitions and payment events.
-- Rate limiting on auth and matching endpoints.
-
----
-
-## 8. Observability
-
-| Signal | Tooling (target) |
-|--------|------------------|
-| Logs | Structured JSON, `traceId` correlation |
-| Metrics | Prometheus / OpenTelemetry |
-| Traces | OTLP → collector |
-| Uptime | Health: `/health/live`, `/health/ready` |
-
----
-
-## 9. Local Development Bootstrap
-
-```bash
-# From repository root
-pnpm install
-pnpm --filter @fleetflow/shared build
-docker compose -f fleetflow-infra/docker-compose.yml up -d
-pnpm --filter @fleetflow/api run start:dev
-pnpm --filter @fleetflow/web run dev
-```
-
-Flutter:
-
-```bash
-cd fleetflow-app
-flutter pub get
-flutter test
-flutter test integration_test/app_test.dart
-```
-
----
-
-## 10. Repository Ownership Matrix
-
-| Path | Owner | Change Control |
-|------|-------|----------------|
-| `fleetflow-shared` | Platform / Contracts Guild | Breaking changes require RFC |
-| `fleetflow-api` | Backend Guild | OpenAPI review on PR |
-| `fleetflow-web` | Web Guild | Design system + a11y checks |
-| `fleetflow-app` | Mobile Guild | Contract sync checklist |
-| `fleetflow-infra` | Platform SRE | Compose parity with staging |
-| `fleetflow-docs` | Architecture Board | Versioned with releases |
-
----
-
-## 11. Non-Goals (Current Scaffold)
-
-- Multi-region active-active failover (documented for later phases).
-- Full gRPC mesh between matching and API (HTTP/JSON stub first).
-- Native iOS/Android module plugins beyond Flutter packages listed in `pubspec.yaml`.
+## Related Links
+
+- [FleetFlow Production Kanban](https://github.com/users/aldoprogrammer/projects/2)
+- API Swagger (local): `http://localhost:3000/docs`
+- Prisma Studio (local): `http://localhost:5555`
+- Web Portal (local): `http://localhost:3001`
 
 ---
 
