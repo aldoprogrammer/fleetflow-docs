@@ -96,6 +96,8 @@ Alex Rivera (seed BIKE) sits at **-6.2012, 106.8175**. Web create-order form def
 4. Submit → land on **order detail** (`/orders/{id}`)
 5. Wait until status becomes **ASSIGNED** (usually a few seconds). Tracker polls every **3s** through the whole trip.
 
+Optional: while Flutter is open on **Alerts**, confirm badge + SnackBar when matching assigns (see [DRIVER_NOTIFICATIONS.md](./DRIVER_NOTIFICATIONS.md)).
+
 ### Take B — Driver or ops completes the trip
 
 **Option 1 — Flutter driver**

@@ -57,7 +57,7 @@ Role:     DRIVER_PARTNER
 }
 ```
 
-Response includes `accessToken`, `driverId`, and `permissions: ["orders:read:assigned"]`.
+Response includes `accessToken`, `driverId`, and `permissions: ["orders:read:assigned", "notifications:read"]`.
 
 ### 2.2 App Navigation Structure
 
@@ -66,10 +66,12 @@ Response includes `accessToken`, `driverId`, and `permissions: ["orders:read:ass
 | `/login` | `LoginPage` | Email/password authentication (`DRIVER_PARTNER`) |
 | `/active` | `ActiveJobsPage` | Assigned / in-progress trips (polls every 5s) |
 | `/history` | `HistoryPage` | Delivered / cancelled archive |
+| `/notifications` | `NotificationsPage` | Unread / inbox assign alerts (SSE + poll) |
 | `/profile` | `ProfilePage` | Session user + sign out |
 | `/orders/:id` | `OrderDetailPage` | Map, navigate, confirm pickup / deliver |
 
-Full live demo (merchant web → match → Flutter → web tracker): see [DEMO_E2E.md](../../DEMO_E2E.md).
+Full live demo (merchant web → match → Flutter → web tracker): see [DEMO_E2E.md](../../DEMO_E2E.md).  
+Notification design: [DRIVER_NOTIFICATIONS.md](../../DRIVER_NOTIFICATIONS.md).
 
 ### 2.3 Session Management
 

@@ -19,6 +19,8 @@ Read this index first, then drill into the document that matches your role.
 
 → **[DEMO_E2E.md](./DEMO_E2E.md)** — Web create order → matcher assigns Alex → Flutter pickup/deliver → web tracker updates live.
 
+→ **[DRIVER_NOTIFICATIONS.md](./DRIVER_NOTIFICATIONS.md)** — Driver assign push + unread inbox (BullMQ + Redis SSE).
+
 ---
 
 ## Folder Structure
@@ -27,6 +29,7 @@ Read this index first, then drill into the document that matches your role.
 fleetflow-docs/
 ├── README.md                      ← You are here (documentation index)
 ├── DEMO_E2E.md                    ← Video / live demo: web ↔ API ↔ Flutter
+├── DRIVER_NOTIFICATIONS.md        ← Driver assign alerts (BullMQ + Redis + Flutter)
 ├── PRD.md                         ← Product requirements & acceptance criteria
 ├── QA_TESTING.md                  ← Full QA pyramid & test commands
 ├── ARCHITECTURE.md                ← System diagram + portfolio video script
