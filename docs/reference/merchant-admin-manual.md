@@ -71,7 +71,7 @@ API key authentication grants exactly `orders:create` and `orders:read:own`. Key
 |-----|---------|
 | `http://localhost:3001/` | Operations portal home |
 | `http://localhost:3001/orders/create` | Single order creation form |
-| `http://localhost:3001/orders/{id}` | Live order tracker (3-second poll) |
+| `http://localhost:3001/orders/{id}` | Live order tracker (polls every 3s through `PICKED_UP` until `DELIVERED` / `CANCELLED`) |
 
 ---
 
@@ -145,6 +145,9 @@ When creating an order, specify pickup coordinates within the branch service are
 5. Verify or adjust **Coordinates** (latitude −90 to 90, longitude −180 to 180).
 6. Click **Create order**.
 7. On success, portal redirects to `/orders/{id}` tracker.
+8. Keep the tracker open — when the driver confirms pickup/delivery in the Flutter app, status advances live (`ASSIGNED` → `PICKED_UP` → `DELIVERED`).
+
+Cross-surface demo script: [DEMO_E2E.md](../../DEMO_E2E.md).
 
 ### 5.2 API Procedure
 

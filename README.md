@@ -5,7 +5,7 @@
 **Product:** FleetFlow — On-Demand Logistics & Courier Dispatch System  
 **Classification:** Enterprise Multi-Repo Ecosystem  
 **Audience:** Principal Engineers, Product Architects, QA Engineers, Mobile & Backend Guilds  
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-14
 
 ---
 
@@ -15,6 +15,10 @@
 
 Read this index first, then drill into the document that matches your role.
 
+### Start here for a live / video demo
+
+→ **[DEMO_E2E.md](./DEMO_E2E.md)** — Web create order → matcher assigns Alex → Flutter pickup/deliver → web tracker updates live.
+
 ---
 
 ## Folder Structure
@@ -22,6 +26,7 @@ Read this index first, then drill into the document that matches your role.
 ```
 fleetflow-docs/
 ├── README.md                      ← You are here (documentation index)
+├── DEMO_E2E.md                    ← Video / live demo: web ↔ API ↔ Flutter
 ├── PRD.md                         ← Product requirements & acceptance criteria
 ├── QA_TESTING.md                  ← Full QA pyramid & test commands
 ├── ARCHITECTURE.md                ← System diagram + portfolio video script

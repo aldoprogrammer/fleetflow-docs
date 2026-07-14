@@ -63,15 +63,13 @@ Response includes `accessToken`, `driverId`, and `permissions: ["orders:read:ass
 
 | Route | Screen | Purpose |
 |-------|--------|---------|
-| `/login` | `LoginPage` | Email/password authentication |
-| `/jobs` | `JobOfferPage` | View and accept delivery assignments |
+| `/login` | `LoginPage` | Email/password authentication (`DRIVER_PARTNER`) |
+| `/active` | `ActiveJobsPage` | Assigned / in-progress trips (polls every 5s) |
+| `/history` | `HistoryPage` | Delivered / cancelled archive |
+| `/profile` | `ProfilePage` | Session user + sign out |
+| `/orders/:id` | `OrderDetailPage` | Map, navigate, confirm pickup / deliver |
 
-**Phase 2 routes (planned):**
-| Route | Screen | Purpose |
-|-------|--------|---------|
-| `/active-trip` | Active trip map + navigation | Turn-by-turn to pickup/delivery |
-| `/wallet` | Earnings and withdrawal | Partner payout management |
-| `/history` | Completed deliveries | Trip archive |
+Full live demo (merchant web → match → Flutter → web tracker): see [DEMO_E2E.md](../../DEMO_E2E.md).
 
 ### 2.3 Session Management
 
