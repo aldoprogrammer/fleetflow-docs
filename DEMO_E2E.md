@@ -68,7 +68,7 @@ Open `http://localhost:3001`
 ```bash
 cd fleetflow-app
 # .env → FLEETFLOW_API_BASE_URL=http://localhost:3000/v1
-flutter run -d edge --web-port=52511
+flutter run -d edge --web-port=52512
 ```
 
 ---
@@ -105,16 +105,18 @@ Optional: while Flutter is open on **Alerts**, confirm badge + SnackBar when mat
 1. Flutter: login as **driver.partner@fleetflow.dev**
 2. **Active** shows the assigned trip within ~5s (or pull to refresh)
 3. Open the trip → map + addresses
-4. Tap **Confirm pickup** → status `PICKED_UP`
-5. Tap **Confirm delivery** → status `DELIVERED`
+4. Tap **Add photo** (departure) → **Start Journey** → status `PICKED_UP`
+5. Tap **Add photo** (delivery) → **Complete Booking** → status `DELIVERED`
+
+Driver cannot start/complete without ≥ 1 proof photo. Ops/web can override with a reason — see [PROOF_OF_DELIVERY.md](./PROOF_OF_DELIVERY.md).
 
 **Option 2 — Web dispatch ops**
 
 1. Web: login as **fleet.operator@fleetflow.dev** or **superadmin@fleetflow.dev**
 2. Open the same order at `/orders/{id}`
-3. Below the trip map: **Dispatch operations** → **Confirm pickup** / **Confirm delivery**
+3. Below the trip map: **Dispatch operations** → enter override reason if no photos → **Confirm pickup** / **Confirm delivery**
 
-Both paths use `POST /orders/:id/pickup` and `POST /orders/:id/deliver`.
+Both paths use `POST /orders/:id/photos`, `POST /orders/:id/pickup`, and `POST /orders/:id/deliver`.
 
 ### Take C — Web reflects the update
 
@@ -150,8 +152,9 @@ POST /v1/auth/login
 { "email":"fleet.operator@fleetflow.dev","password":"FleetFlow!2026","role":"FLEET_OPERATOR" }
 
 GET  /v1/orders
-POST /v1/orders/{id}/pickup
-POST /v1/orders/{id}/deliver
+POST /v1/orders/{id}/photos   (multipart: file + type=DEPARTURE|DELIVERY)
+POST /v1/orders/{id}/pickup   (body optional: { overrideReason })
+POST /v1/orders/{id}/deliver  (body optional: { overrideReason })
 ```
 
 Merchant API key alternative: header `x-api-key: ff_live_merchant_acme_7f3c9a2e`

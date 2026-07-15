@@ -99,10 +99,11 @@
 
 ### 2.4 Post-Assignment Lifecycle (Phase 2)
 
-- [ ] `P1` `PATCH /v1/orders/:id/pickup` — driver marks `PICKED_UP`
-- [ ] `P1` `PATCH /v1/orders/:id/deliver` — driver marks `DELIVERED`, driver returns `AVAILABLE`
-- [ ] `P1` Flutter: wire `accept_delivery_job` use case to live API
-- [ ] `P2` Proof-of-delivery photo upload to object storage
+- [x] `P1` `POST /v1/orders/:id/pickup` — driver marks `PICKED_UP`
+- [x] `P1` `POST /v1/orders/:id/deliver` — driver marks `DELIVERED`, driver returns `AVAILABLE`
+- [x] `P1` Flutter: wire active trip actions to live API
+- [x] `P2` Proof-of-delivery / departure photo upload (Cloudinary + local fallback)
+- [x] `P2` Ops manual completion override with audit reason
 - [ ] `P2` Customer notification webhook on `DELIVERED`
 
 ### 2.5 Bengkulu → Regional Coordinate Indexing (Phase 2)

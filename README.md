@@ -5,7 +5,7 @@
 **Product:** FleetFlow — On-Demand Logistics & Courier Dispatch System  
 **Classification:** Enterprise Multi-Repo Ecosystem  
 **Audience:** Principal Engineers, Product Architects, QA Engineers, Mobile & Backend Guilds  
-**Last Updated:** 2026-07-14
+**Last Updated:** 2026-07-15
 
 ---
 
@@ -17,9 +17,13 @@ Read this index first, then drill into the document that matches your role.
 
 ### Start here for a live / video demo
 
+→ **[PROOF_OF_DELIVERY.md](./PROOF_OF_DELIVERY.md)** — Driver departure/delivery photo SLA + ops override.
+
 → **[DEMO_E2E.md](./DEMO_E2E.md)** — Web create order → matcher assigns Alex → Flutter pickup/deliver → web tracker updates live.
 
 → **[DRIVER_NOTIFICATIONS.md](./DRIVER_NOTIFICATIONS.md)** — Driver assign push + unread inbox (BullMQ + Redis SSE).
+
+→ **[REALTIME_SSE.md](./REALTIME_SSE.md)** — NestJS SSE fix, Redis pub/sub, proof-photo sync, stress testing.
 
 ---
 
@@ -30,6 +34,7 @@ fleetflow-docs/
 ├── README.md                      ← You are here (documentation index)
 ├── DEMO_E2E.md                    ← Video / live demo: web ↔ API ↔ Flutter
 ├── DRIVER_NOTIFICATIONS.md        ← Driver assign alerts (BullMQ + Redis + Flutter)
+├── REALTIME_SSE.md                ← SSE architecture, NestJS fix, verification & stress tests
 ├── PRD.md                         ← Product requirements & acceptance criteria
 ├── QA_TESTING.md                  ← Full QA pyramid & test commands
 ├── ARCHITECTURE.md                ← System diagram + portfolio video script

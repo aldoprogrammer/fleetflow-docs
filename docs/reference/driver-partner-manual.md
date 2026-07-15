@@ -87,7 +87,7 @@ Notification design: [DRIVER_NOTIFICATIONS.md](../../DRIVER_NOTIFICATIONS.md).
 
 1. Install FleetFlow Driver app on iOS or Android device.
 2. Grant **location permissions** (Always Allow recommended for background sync — Phase 2).
-3. Grant **camera permissions** for proof-of-delivery photos (Phase 2).
+3. Grant **camera / gallery permissions** for departure and delivery proof photos.
 4. Log in with Driver Partner credentials.
 5. Verify vehicle assignment displays correctly (plate number, type).
 
@@ -233,51 +233,48 @@ Accurate `(currentLat, currentLng)` is critical for Haversine matching. Backgrou
 
 ---
 
-## 6. Proof-of-Delivery (PoD) Uploads (Phase 2)
+## 6. Proof Photos (Departure + Delivery)
 
-### 6.1 When PoD Is Required
+### 6.1 When Required
 
-Proof-of-delivery is mandatory for all `DELIVERED` orders before driver returns to `AVAILABLE`.
+| Action | Button | Min photos | Type |
+|--------|--------|------------|------|
+| Start journey | **Start Journey** | 1 | `DEPARTURE` |
+| Complete booking | **Complete Booking** | 1 | `DELIVERY` |
 
-### 6.2 PoD Capture Procedure
+Ops and assigned drivers can upload on the web booking detail page (**Before pickup** / **After delivery**). Driver app uploads appear on the same panel within ~3s polling.
 
-1. Arrive at delivery coordinates; confirm within 100m geofence.
-2. Tap **Mark Delivered** on active trip screen.
-3. Camera opens — photograph parcel at delivery point (minimum 1 photo).
-4. Optional: capture recipient signature on screen.
-5. Enter delivery notes (e.g., "Left with security guard").
-6. Submit → `PATCH /v1/orders/:id/deliver` with multipart upload.
+### 6.2 Capture Procedure
 
-### 6.3 PoD Data Model (Phase 2)
+1. Open trip detail.
+2. Tap **Add photo** → camera or gallery (JPG/PNG).
+3. Upload succeeds → button enables.
+4. Tap **Start Journey** or **Complete Booking**.
 
-```json
-{
-  "orderId": "uuid",
-  "deliveredAt": "2026-07-11T11:00:00.000Z",
-  "photos": ["https://storage.fleetflow.id/pod/uuid/1.jpg"],
-  "recipientName": "Security Desk",
-  "notes": "Left with security guard",
-  "deliveryLat": -6.17511,
-  "deliveryLng": 106.865036
-}
-```
+API:
 
-### 6.4 PoD Quality Standards
+- `POST /v1/orders/:id/photos` (`multipart`: `file` + `type`)
+- `POST /v1/orders/:id/pickup`
+- `POST /v1/orders/:id/deliver`
+
+### 6.3 Storage
+
+Cloudinary folders `fleetflow/departures/booking-{id}/` and `fleetflow/deliveries/booking-{id}/` (local `uploads/` fallback). URLs are stored in `order_photos`.
+
+### 6.4 Quality Standards
 
 | Requirement | Standard |
 |-------------|----------|
-| Photo resolution | Minimum 1280×720 |
-| Photo clarity | Parcel label readable where applicable |
-| Geolocation | Delivery coordinates within 200m of `deliveryLat/Lng` |
-| Timestamp | Server-validated; no backdating |
+| Format | JPG, JPEG, PNG |
+| Count | At least 1 per action |
 
-### 6.5 PoD Failure Handling
+### 6.5 Failure Handling
 
 | Failure | Resolution |
 |---------|------------|
-| Upload timeout | Auto-retry 3 times; cache locally until success |
-| Geofence mismatch | Contact Fleet Operator for manual delivery confirmation |
-| Recipient unavailable | Follow merchant delivery instructions; note in PoD |
+| Button disabled | Upload at least one proof photo |
+| Device camera failure | Ops completes with override reason |
+| Recipient unavailable | Ops manual completion + audit |
 
 ---
 
