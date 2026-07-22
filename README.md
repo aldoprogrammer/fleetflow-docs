@@ -59,8 +59,8 @@ fleetflow-docs/
 | Package | Local Docs | Scope |
 |---------|------------|-------|
 | `fleetflow-api/` | `README.md`, `API_SPEC.md` | REST endpoints, Prisma, auth, matching |
-| `fleetflow-web/` | `README.md` | Next.js portal, Playwright |
-| `fleetflow-app/` | `README.md` | Flutter driver client |
+| `fleetflow-web/` | `README.md`, [web visual preview](../fleetflow-web/docs/web-version-visual-preview/WEB_VERSION_VISUAL_PREVIEW.md) | Next.js portal, Playwright, UI gallery |
+| `fleetflow-app/` | `README.md`, [mobile visual preview](../fleetflow-app/docs/mobile-version-visual-preview/MOBILE_VERSION_VISUAL_PREVIEW.md) | Flutter driver client |
 | `fleetflow-infra/` | `README.md` | Docker Compose, smoke QA |
 | `fleetflow-shared/` | `README.md` | Zod contracts, RBAC permissions |
 
